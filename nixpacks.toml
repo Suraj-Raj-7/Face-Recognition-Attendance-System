@@ -1,0 +1,3 @@
+# nixpacks.toml
+[packages]
+apt = ["cmake", "libopenblas-dev", "liblapack-dev", "libjpeg-dev"]
