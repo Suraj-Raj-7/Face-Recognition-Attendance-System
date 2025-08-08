@@ -1,7 +1,7 @@
 Flask
 opencv-python
 face-recognition
-dlib-bin
+dlib
 pandas
 Flask-SQLAlchemy
 Pillow
