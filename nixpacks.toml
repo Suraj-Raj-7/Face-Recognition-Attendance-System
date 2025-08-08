@@ -1,3 +1,13 @@
 # nixpacks.toml
 [packages]
-apt = ["cmake", "libopenblas-dev", "liblapack-dev", "libjpeg-dev"]
+apt = [
+    "build-essential", 
+    "cmake", 
+    "libopenblas-dev", 
+    "liblapack-dev", 
+    "libjpeg-dev", 
+    "libpng-dev", 
+    "libboost-dev", 
+    "libboost-python-dev",
+    "libgtk2.0-dev"
+]
