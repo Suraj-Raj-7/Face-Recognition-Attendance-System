@@ -418,4 +418,4 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('beforeunload', stopCameraForAdmin);
     }
 });
-}
+
