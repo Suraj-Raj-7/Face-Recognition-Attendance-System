@@ -277,4 +277,5 @@ def delete_student(student_id):
         return jsonify({'success': True, 'message': 'Student and related attendance records deleted successfully.'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    pass
