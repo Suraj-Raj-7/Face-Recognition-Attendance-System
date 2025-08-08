@@ -12,5 +12,4 @@ This is a web-based attendance system that uses face recognition technology to m
 * **SQLite Database:** All data is stored in a `site.db` file, providing a robust and scalable solution compared to CSV files.
 
 
-activate virtual environment: .\venv\Scripts\activate
-run the app: python app.py
+
