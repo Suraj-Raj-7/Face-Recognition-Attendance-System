@@ -49,64 +49,6 @@ with app.app_context():
 
 load_face_encodings()
 
-# --- Video stream generation function ---
-def generate_frames():
-    video_capture = cv2.VideoCapture(0)
-    attendance_marked_session = set()
-
-    while True:
-        ret, frame = video_capture.read()
-        if not ret:
-            break
-
-        # Flip the frame horizontally for a mirror effect (before adding the text)
-        # This is done to ensure the text appears correctly on the video feed
-        frame = cv2.flip(frame, 1)  # Flip horizontally
-        
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        face_locations = face_recognition.face_locations(rgb_frame)
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-
-        for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-            name = "Unknown"
-            roll = None
-
-            if known_face_encodings:
-                matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.6)
-                if True in matches:
-                    first_match_index = matches.index(True)
-                    matched_student_id = known_student_ids[first_match_index]
-
-                    with app.app_context():
-                        student = db.session.get(Student, matched_student_id)
-                        if student:
-                            name = student.name
-                            roll = student.roll_no
-
-                            if matched_student_id not in attendance_marked_session:
-                                new_attendance = Attendance(student_id=matched_student_id, timestamp=datetime.utcnow())
-                                db.session.add(new_attendance)
-                                db.session.commit()
-                                attendance_marked_session.add(matched_student_id)
-                                print(f"Attendance marked for {name} (Roll: {roll})")
-
-            # Draw rectangle and name on original frame
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-            cv2.putText(frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
-
-        # 🔁 Flip the final frame AFTER annotations. Through this, text and video both will be flipped 
-        flipped_frame = cv2.flip(frame, 1)
-
-        _, buffer = cv2.imencode('.jpg', flipped_frame)
-        frame = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-    video_capture.release()
-
-
-
-
 # --- Flask Routes ---
 @app.route('/')
 def home():
@@ -124,9 +66,57 @@ def admin_login():
 def admin_dashboard():
     return render_template('admin_dashboard.html')
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/api/recognize_face', methods=['POST'])
+def recognize_face():
+    """
+    New API endpoint to receive image data, perform face recognition,
+    and mark attendance if a match is found.
+    """
+    data = request.json
+    photo_data_url = data.get('photo')
+
+    if not photo_data_url:
+        return jsonify({'status': 'no_face'}), 400
+
+    try:
+        header, image_data = photo_data_url.split(',', 1)
+        decoded_image = base64.b64decode(image_data)
+        nparr = np.frombuffer(decoded_image, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        rgb_frame = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        face_locations = face_recognition.face_locations(rgb_frame)
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+
+        if not face_encodings:
+            return jsonify({'status': 'no_face'})
+
+        face_encoding = face_encodings[0]
+        if known_face_encodings:
+            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.6)
+            if True in matches:
+                first_match_index = matches.index(True)
+                matched_student_id = known_student_ids[first_match_index]
+
+                with app.app_context():
+                    student = db.session.get(Student, matched_student_id)
+                    if student:
+                        # Check if attendance has already been marked recently to avoid duplicates
+                        recent_attendance = Attendance.query.filter_by(student_id=matched_student_id).order_by(Attendance.timestamp.desc()).first()
+                        if not recent_attendance or (datetime.utcnow() - recent_attendance.timestamp).total_seconds() > 30:
+                            new_attendance = Attendance(student_id=matched_student_id, timestamp=datetime.utcnow())
+                            db.session.add(new_attendance)
+                            db.session.commit()
+                            return jsonify({'status': 'match_found', 'name': student.name})
+                        else:
+                            # Matched, but attendance was marked too recently
+                            return jsonify({'status': 'already_marked', 'name': student.name})
+
+        return jsonify({'status': 'no_match'})
+    
+    except Exception as e:
+        print(f"Error during face recognition: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/api/register_student', methods=['POST'])
 def register_student():
@@ -168,7 +158,10 @@ def register_student():
         db.session.add(new_student)
         db.session.commit()
         
-        load_face_encodings()
+        # Optimize: add new encoding to global lists directly instead of reloading all of them
+        global known_face_encodings, known_student_ids
+        known_face_encodings.append(face_encoding)
+        known_student_ids.append(new_student.id)
 
         return jsonify({'success': True, 'message': 'Student registered successfully!'})
     except Exception as e:
@@ -196,6 +189,7 @@ def get_attendance_data():
 def get_attendance_status():
     """
     API endpoint to check if attendance has been marked for the current session.
+    (This is now obsolete with client-side camera, but is kept for backward compatibility).
     """
     with app.app_context():
         recent_attendance = Attendance.query.order_by(Attendance.timestamp.desc()).first()
@@ -277,5 +271,5 @@ def delete_student(student_id):
         return jsonify({'success': True, 'message': 'Student and related attendance records deleted successfully.'})
 
 if __name__ == '__main__':
-    # app.run(debug=True)
+    # This block is now empty because Gunicorn will run the application
     pass
