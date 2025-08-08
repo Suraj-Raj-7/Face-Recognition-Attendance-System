@@ -1,0 +1,375 @@
+/* ========================================================= */
+/* --- A. UNIVERSAL STYLES (for all pages) ---              */
+/* ========================================================= */
+
+/* Sets a consistent base font and layout for the entire body */
+body {
+    font-family: Arial, sans-serif;
+    display: flex; /* Use Flexbox for easy centering */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    min-height: 100vh; /* Make body take up full viewport height */
+    background-color: #f4f4f4; /* A light grey background color */
+    margin: 0;
+    box-sizing: border-box; /* Include padding and border in the element's total width */
+    flex-direction: column; /* Stack elements vertically */
+}
+
+/* Base style for the main content containers on all pages */
+.container, .login-container, .dashboard-container {
+    background-color: #fff; /* White background for the content box */
+    padding: 30px;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* A subtle drop shadow for depth */
+    text-align: center;
+}
+
+/* Styling for main headings */
+h1 {
+    color: #333; /* Dark grey for a professional look */
+    margin-bottom: 20px;
+}
+
+/* Style for the "Back to Home" button, used on multiple pages */
+.home-button {
+    display: inline-block; /* Allows padding and width/height settings */
+    padding: 10px 20px;
+    background-color: #6c757d; /* A neutral grey color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; /* Change cursor to a hand on hover */
+    text-decoration: none; /* Removes the underline from the link */
+    margin-top: 20px;
+    transition: background-color 0.3s ease; /* Smooth color transition on hover */
+}
+
+.home-button:hover {
+    background-color: #5a6268;
+}
+
+
+/* ========================================================= */
+/* --- B. `index.html` STYLES (Home Page) ---               */
+/* ========================================================= */
+
+.container {
+    padding: 40px 60px;
+    gap: 30px; /* Provides space between the heading and the buttons */
+}
+
+/* Styling for the large "Student" and "Admin" buttons */
+.option-button {
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 1.2em; /* Makes the text larger */
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff; /* A nice blue for the Student button */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.option-button:hover {
+    background-color: #0056b3;
+}
+
+/* Specific styling for the Admin button */
+.option-button.admin {
+    background-color: #28a745; /* A green color */
+}
+
+.option-button.admin:hover {
+    background-color: #218838;
+}
+
+
+/* ========================================================= */
+/* --- C. `student.html` STYLES (Student View) ---            */
+/* ========================================================= */
+
+/* The fixed-size container for the camera video feed */
+#video-container {
+    width: 640px; /* Standard webcam width */
+    height: 480px; /* Standard webcam height */
+    background-color: #000;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin: 0 auto 20px;
+    overflow: hidden; /* Ensures video stays within the rounded corners */
+    position: relative; /* Allows child elements like the loading message to be positioned relative to this container */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+
+/* The actual video element itself */
+#videoElement {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures video fills the entire container */
+}
+
+/* The loading message that appears before the camera starts */
+#loading-message {
+    position: absolute; /* Positions it over the video container */
+    color: #fff;
+    font-size: 1.5em;
+    text-align: center;
+}
+
+/* The status message (e.g., "Detecting face...", "Attendance Marked") */
+.status-message {
+    margin-top: 15px;
+    font-size: 1.1em;
+    color: #555;
+    min-height: 25px; /* Reserves space to prevent the page layout from shifting when the message text appears */
+}
+
+
+/* ========================================================= */
+/* --- D. `admin_login.html` STYLES (Admin Login) ---         */
+/* ========================================================= */
+
+.login-container {
+    padding: 40px;
+    width: 350px;
+}
+
+/* A group for each label and input field */
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block; /* Puts the label on its own line */
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+/* Styling for all text-based inputs */
+.input-group input[type="text"],
+.input-group input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box; /* Makes sure padding doesn't increase element width */
+    font-size: 1em;
+}
+
+/* The error message for failed login */
+.error-message {
+    color: red;
+    margin-top: 10px;
+    font-weight: bold;
+    display: none; /* Hidden by default by CSS */
+}
+
+/* Styling for the login button */
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745; /* Green for Admin login */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-container button:hover {
+    background-color: #218838;
+}
+
+
+/* ========================================================= */
+/* --- E. `admin_dashboard.html` STYLES (Admin Dashboard) --- */
+/* ========================================================= */
+
+.dashboard-container {
+    max-width: 900px;
+    gap: 30px;
+}
+
+/* A container for each major feature section on the dashboard */
+.section {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+}
+
+h2 {
+    color: #555;
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Styling for inputs specific to the dashboard */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+/* Container for the live camera and captured photo */
+#cameraPreview {
+    width: 320px;
+    height: 240px;
+    background-color: #000;
+    border: 2px solid #ddd;
+    margin: 20px auto;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#cameraVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none; /* Hidden by default until the camera is started */
+}
+
+/* The image element to display the captured photo */
+#capturedImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: none; /* Hidden by default */
+    border-radius: 5px;
+}
+
+/* Styling for the camera control buttons */
+.camera-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+/* General button styling */
+.btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: #fff;
+}
+/* Small button styling for the delete button */
+.btn.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.9em;
+}
+
+/* Color variants for different button actions */
+.btn-primary { background-color: #007bff; }
+.btn-primary:hover { background-color: #0056b3; }
+.btn-success { background-color: #28a745; }
+.btn-success:hover { background-color: #218838; }
+.btn-danger { background-color: #dc3545; }
+.btn-danger:hover { background-color: #c82333; }
+.btn-secondary { background-color: #6c757d; }
+.btn-secondary:hover { background-color: #5a6268; }
+
+/* Flexbox for aligning button groups */
+.flex-buttons {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Specific styling for the logout button container */
+.logout-button-container {
+    justify-content: center; /* Override the default right alignment to center the logout button */
+    margin-top: 30px;
+}
+
+/* Placeholder styling for the attendance data area */
+#attendanceTablePlaceholder {
+    background-color: #f0f0f0;
+    border: 1px dashed #bbb;
+    padding: 30px;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    border-radius: 5px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column; /* To make sure the scrollbar works properly */
+    align-items: center;
+    justify-content: center;
+
+    /* FIX: Keep table size fixed with a scrollbar */
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0; /* Remove padding to avoid double spacing */
+}
+/* Table styling for both attendance and students */
+#attendanceTablePlaceholder table,
+#studentsTablePlaceholder table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+#attendanceTablePlaceholder table th,
+#attendanceTablePlaceholder table td,
+#studentsTablePlaceholder table th,
+#studentsTablePlaceholder table td {
+    padding: 8px 15px; /* Adds 8px vertical padding and 15px horizontal padding */
+    border: 1px solid #ddd;
+    text-align: left;
+}
+#attendanceTablePlaceholder table thead th,
+#studentsTablePlaceholder table thead th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+/* FIX: Table headers fixed on top */
+#attendanceTablePlaceholder table thead {
+    position: sticky; /* Add this line */
+    top: 0; /* Add this line */
+    z-index: 10; /* Add this line to ensure headers are on top */
+    background-color: #f2f2f2; /* Add this to prevent content from showing through */
+}
+#attendanceTablePlaceholder table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    position: relative; /* Add this line */
+}

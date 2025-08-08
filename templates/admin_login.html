@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Admin Login</h1>
+        <div class="input-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <p class="error-message" id="errorMessage">Invalid username or password.</p>
+        <button type="submit" id="loginButton">Login</button>
+        <a href="/" class="home-button">Back to Home</a>
+    </div>
+    <script src="static/js/script.js"></script>
+</body>
+</html>
