@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 attendanceStatus.textContent = 'Please look at the camera to mark your attendance.';
                 isPolling = true;
                 
-                // Start sending frames for recognition after a delay
                 video.onloadedmetadata = () => {
                     video.play();
                     // Flip the video horizontally for a mirror effect
@@ -87,6 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (data.status === 'no_face') {
                     attendanceStatus.textContent = `No face detected. Please try again.`;
                     attendanceStatus.style.color = '#dc3545';
+                } else if (data.status === 'already_marked') {
+                    attendanceStatus.textContent = `Attendance already marked for ${data.name}!`;
+                    attendanceStatus.style.color = '#ffc107';
+                    isPolling = false;
                 } else {
                     attendanceStatus.textContent = `Detecting face...`;
                     attendanceStatus.style.color = '#555';
