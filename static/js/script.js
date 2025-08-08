@@ -26,44 +26,83 @@ document.addEventListener('DOMContentLoaded', function() {
     const video = document.getElementById('videoElement');
     const loadingMessage = document.getElementById('loading-message');
     const attendanceStatus = document.getElementById('attendanceStatus');
-    
-    // Check if the video element exists on the current page
+    const videoContainer = document.getElementById('video-container');
+
+    let isPolling = false;
+
     if (video) {
-        // Asynchronous function to start the camera using the Web MediaDevices API
-        function startCamera() {
+        async function startCamera() {
             loadingMessage.textContent = 'Connecting to camera...';
-            video.style.display = 'none';
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                loadingMessage.style.display = 'none';
+                attendanceStatus.textContent = 'Please look at the camera to mark your attendance.';
+                isPolling = true;
+                
+                // Start sending frames for recognition after a delay
+                video.onloadedmetadata = () => {
+                    video.play();
+                    // Flip the video horizontally for a mirror effect
+                    video.style.transform = 'scaleX(-1)';
+                    console.log("Client-side camera started.");
+                    sendFramesForRecognition();
+                };
 
-            // Point the video element to the Flask video feed endpoint
-            video.src = '/video_feed'; 
-            video.style.display = 'block';
-            loadingMessage.style.display = 'none';
-            attendanceStatus.textContent = 'Please look at the camera to mark your attendance.';
-            console.log("Camera feed started from backend!");
-
-            // Start polling the server for attendance updates
-            pollAttendanceStatus();
-        }
-
-        async function pollAttendanceStatus() {
-            let marked = false;
-            while (!marked) {
-                try {
-                    const response = await fetch('/api/attendance_status');
-                    const data = await response.json();
-                    if (data.marked) {
-                        attendanceStatus.textContent = 'Attendance Marked Successfully! ✅';
-                        attendanceStatus.style.color = '#28a745';
-                        marked = true;
-                    }
-                } catch (error) {
-                    console.error('Error polling attendance status:', error);
-                }
-                // Poll every 1-2 seconds
-                await new Promise(resolve => setTimeout(resolve, 1500));
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                loadingMessage.textContent = 'Camera access denied or unavailable.';
+                alert('Could not start camera. Please check permissions.');
             }
         }
-        
+
+        function captureFrame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            // Draw the flipped video frame onto the canvas
+            context.scale(-1, 1);
+            context.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+
+        async function sendFramesForRecognition() {
+            if (!isPolling) return;
+            const photoDataUrl = captureFrame();
+
+            try {
+                const response = await fetch('/api/recognize_face', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ photo: photoDataUrl })
+                });
+
+                const data = await response.json();
+                if (data.status === 'match_found') {
+                    attendanceStatus.textContent = `Attendance Marked for ${data.name}! ✅`;
+                    attendanceStatus.style.color = '#28a745';
+                    isPolling = false; // Stop sending frames once attendance is marked
+                } else if (data.status === 'no_face') {
+                    attendanceStatus.textContent = `No face detected. Please try again.`;
+                    attendanceStatus.style.color = '#dc3545';
+                } else {
+                    attendanceStatus.textContent = `Detecting face...`;
+                    attendanceStatus.style.color = '#555';
+                }
+            } catch (error) {
+                console.error('Error sending frame to server:', error);
+                attendanceStatus.textContent = 'Server error. Please try again later.';
+                attendanceStatus.style.color = '#dc3545';
+            }
+            
+            // Continue polling every 1.5 seconds if attendance has not been marked
+            if (isPolling) {
+                setTimeout(sendFramesForRecognition, 1500);
+            }
+        }
+
         startCamera();
     }
 
@@ -376,3 +415,4 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('beforeunload', stopCameraForAdmin);
     }
 });
+}
